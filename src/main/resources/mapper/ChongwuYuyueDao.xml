@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.ChongwuYuyueDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.chongwu_yuyue_uuid_number as chongwuYuyueUuidNumber
+        ,a.chongwu_id as chongwuId
+        ,a.yonghu_id as yonghuId
+        ,a.chongwu_yuyue_text as chongwuYuyueText
+        ,a.chongwu_yuyue_yesno_types as chongwuYuyueYesnoTypes
+        ,a.chongwu_yuyue_yesno_text as chongwuYuyueYesnoText
+        ,a.chongwu_yuyue_shenhe_time as chongwuYuyueShenheTime
+        ,a.chongwu_yuyue_time as chongwuYuyueTime
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.ChongwuYuyueView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+        ,chongwu.chongwu_name as chongwuName
+        ,chongwu.chongwu_uuid_number as chongwuUuidNumber
+        ,chongwu.chongwu_photo as chongwuPhoto
+        ,chongwu.chongwu_address as chongwuAddress
+        ,chongwu.zan_number as zanNumber
+        ,chongwu.cai_number as caiNumber
+        ,chongwu.chongwu_types as chongwuTypes
+        ,chongwu.chongwu_content as chongwuContent
+        ,chongwu.chongwu_delete as chongwuDelete
+        ,yonghu.yonghu_name as yonghuName
+        ,yonghu.yonghu_phone as yonghuPhone
+        ,yonghu.yonghu_id_number as yonghuIdNumber
+        ,yonghu.yonghu_photo as yonghuPhoto
+        ,yonghu.yonghu_email as yonghuEmail
+        ,yonghu.jinyong_types as jinyongTypes
+
+        FROM chongwu_yuyue  a
+        left JOIN chongwu chongwu ON a.chongwu_id = chongwu.id
+        left JOIN yonghu yonghu ON a.yonghu_id = yonghu.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.chongwuYuyueUuidNumber != '' and params.chongwuYuyueUuidNumber != null and params.chongwuYuyueUuidNumber != 'null' ">
+                and a.chongwu_yuyue_uuid_number like CONCAT('%',#{params.chongwuYuyueUuidNumber},'%')
+            </if>
+            <if test="params.chongwuId != null and params.chongwuId != ''">
+                and (
+                    a.chongwu_id = #{params.chongwuId}
+                )
+            </if>
+            <if test="params.yonghuId != null and params.yonghuId != ''">
+                and (
+                    a.yonghu_id = #{params.yonghuId}
+                )
+            </if>
+            <if test=" params.chongwuYuyueText != '' and params.chongwuYuyueText != null and params.chongwuYuyueText != 'null' ">
+                and a.chongwu_yuyue_text like CONCAT('%',#{params.chongwuYuyueText},'%')
+            </if>
+            <if test="params.chongwuYuyueYesnoTypes != null and params.chongwuYuyueYesnoTypes != ''">
+                and a.chongwu_yuyue_yesno_types = #{params.chongwuYuyueYesnoTypes}
+            </if>
+            <if test=" params.chongwuYuyueYesnoText != '' and params.chongwuYuyueYesnoText != null and params.chongwuYuyueYesnoText != 'null' ">
+                and a.chongwu_yuyue_yesno_text like CONCAT('%',#{params.chongwuYuyueYesnoText},'%')
+            </if>
+            <if test=" params.chongwuYuyueShenheTimeStart != '' and params.chongwuYuyueShenheTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.chongwu_yuyue_shenhe_time) >= UNIX_TIMESTAMP(#{params.chongwuYuyueShenheTimeStart}) ]]>
+            </if>
+            <if test=" params.chongwuYuyueShenheTimeEnd != '' and params.chongwuYuyueShenheTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.chongwu_yuyue_shenhe_time) <= UNIX_TIMESTAMP(#{params.chongwuYuyueShenheTimeEnd}) ]]>
+            </if>
+            <if test=" params.chongwuYuyueTimeStart != '' and params.chongwuYuyueTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.chongwu_yuyue_time) >= UNIX_TIMESTAMP(#{params.chongwuYuyueTimeStart}) ]]>
+            </if>
+            <if test=" params.chongwuYuyueTimeEnd != '' and params.chongwuYuyueTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.chongwu_yuyue_time) <= UNIX_TIMESTAMP(#{params.chongwuYuyueTimeEnd}) ]]>
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+                <!-- 判断宠物的id不为空 -->
+            <if test=" params.chongwuIdNotNull != '' and params.chongwuIdNotNull != null and params.chongwuIdNotNull != 'null' ">
+                and a.chongwu_id IS NOT NULL
+            </if>
+            <if test=" params.chongwuName != '' and params.chongwuName != null and params.chongwuName != 'null' ">
+                and chongwu.chongwu_name like CONCAT('%',#{params.chongwuName},'%')
+            </if>
+            <if test=" params.chongwuUuidNumber != '' and params.chongwuUuidNumber != null and params.chongwuUuidNumber != 'null' ">
+                and chongwu.chongwu_uuid_number like CONCAT('%',#{params.chongwuUuidNumber},'%')
+            </if>
+            <if test=" params.chongwuAddress != '' and params.chongwuAddress != null and params.chongwuAddress != 'null' ">
+                and chongwu.chongwu_address like CONCAT('%',#{params.chongwuAddress},'%')
+            </if>
+            <if test="params.zanNumberStart != null  and params.zanNumberStart != '' ">
+                <![CDATA[  and chongwu.zan_number >= #{params.zanNumberStart}   ]]>
+            </if>
+            <if test="params.zanNumberEnd != null  and params.zanNumberEnd != '' ">
+                <![CDATA[  and chongwu.zan_number <= #{params.zanNumberEnd}   ]]>
+            </if>
+            <if test="params.zanNumber != null  and params.zanNumber != '' ">
+                and chongwu.zan_number = #{params.zanNumber}
+            </if>
+            <if test="params.caiNumberStart != null  and params.caiNumberStart != '' ">
+                <![CDATA[  and chongwu.cai_number >= #{params.caiNumberStart}   ]]>
+            </if>
+            <if test="params.caiNumberEnd != null  and params.caiNumberEnd != '' ">
+                <![CDATA[  and chongwu.cai_number <= #{params.caiNumberEnd}   ]]>
+            </if>
+            <if test="params.caiNumber != null  and params.caiNumber != '' ">
+                and chongwu.cai_number = #{params.caiNumber}
+            </if>
+            <if test="params.chongwuTypes != null  and params.chongwuTypes != ''">
+                and chongwu.chongwu_types = #{params.chongwuTypes}
+            </if>
+
+            <if test=" params.chongwuContent != '' and params.chongwuContent != null and params.chongwuContent != 'null' ">
+                and chongwu.chongwu_content like CONCAT('%',#{params.chongwuContent},'%')
+            </if>
+            <if test="params.chongwuDeleteStart != null  and params.chongwuDeleteStart != '' ">
+                <![CDATA[  and chongwu.chongwu_delete >= #{params.chongwuDeleteStart}   ]]>
+            </if>
+            <if test="params.chongwuDeleteEnd != null  and params.chongwuDeleteEnd != '' ">
+                <![CDATA[  and chongwu.chongwu_delete <= #{params.chongwuDeleteEnd}   ]]>
+            </if>
+            <if test="params.chongwuDelete != null  and params.chongwuDelete != '' ">
+                and chongwu.chongwu_delete = #{params.chongwuDelete}
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(chongwu.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(chongwu.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+                <!-- 判断用户的id不为空 -->
+            <if test=" params.yonghuIdNotNull != '' and params.yonghuIdNotNull != null and params.yonghuIdNotNull != 'null' ">
+                and a.yonghu_id IS NOT NULL
+            </if>
+            <if test=" params.yonghuName != '' and params.yonghuName != null and params.yonghuName != 'null' ">
+                and yonghu.yonghu_name like CONCAT('%',#{params.yonghuName},'%')
+            </if>
+            <if test=" params.yonghuPhone != '' and params.yonghuPhone != null and params.yonghuPhone != 'null' ">
+                and yonghu.yonghu_phone like CONCAT('%',#{params.yonghuPhone},'%')
+            </if>
+            <if test=" params.yonghuIdNumber != '' and params.yonghuIdNumber != null and params.yonghuIdNumber != 'null' ">
+                and yonghu.yonghu_id_number like CONCAT('%',#{params.yonghuIdNumber},'%')
+            </if>
+            <if test=" params.yonghuEmail != '' and params.yonghuEmail != null and params.yonghuEmail != 'null' ">
+                and yonghu.yonghu_email like CONCAT('%',#{params.yonghuEmail},'%')
+            </if>
+            <if test="params.jinyongTypes != null  and params.jinyongTypes != ''">
+                and yonghu.jinyong_types = #{params.jinyongTypes}
+            </if>
+
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>
